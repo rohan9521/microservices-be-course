@@ -1,6 +1,7 @@
 package com.learningproj.accounts.controller;
 
 import com.learningproj.accounts.constants.AccountConstants;
+import com.learningproj.accounts.dto.AccountsContactInfo;
 import com.learningproj.accounts.dto.CustomerDto;
 import com.learningproj.accounts.dto.ErrorResponseDto;
 import com.learningproj.accounts.dto.ResponseDto;
@@ -15,6 +16,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +33,12 @@ import org.springframework.web.bind.annotation.*;
         description = "This controller provides CRUD operation for accounts along with validation"
 )
 public class AccountsController {
+
+    @Autowired
+    Environment environment;
+
+    @Autowired
+    AccountsContactInfo accountsContactInfo;
 
     private IAccountService iAccountService;
 
@@ -139,5 +148,19 @@ public class AccountsController {
                     .status(HttpStatus.EXPECTATION_FAILED)
                     .body(new ResponseDto(AccountConstants.STATUS_500, AccountConstants.MESSAGE_500));
         }
+    }
+
+    @GetMapping("/java-version")
+    public  ResponseEntity<String> getJavaVersion(){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(environment.getProperty("MAVEN_HOME"));
+    }
+
+    @GetMapping("/contact-info")
+    public  ResponseEntity<AccountsContactInfo> getAcccountsContactInfo(){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(accountsContactInfo);
     }
 }
