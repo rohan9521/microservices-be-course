@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: "config-server"
+  profiles:
+    active: git
+  cloud:
+    config:
+      server:
+       # native: $ native profile is for file or resources/config related configs
+        #search-locations: "classpath:/config"
+        #search-locations: "file:///Users//Administrator//Documents//config"
+       git:
+         uri: "https://github.com/rohan9521/msvc-bank-config.git"
+         default-label: main #branch name
+         timeout: 5
+         clone-on-start: true
+         force-pull : true #reading from origin repo always
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "guest"
+    password: "guest"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveliness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+encrypt:
+  key: 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoEz6fbbAo5xljFlg73GOVSaUWIoyHg5ct9kLMFa43AuJ'
+
+server:
+  port: 8071
