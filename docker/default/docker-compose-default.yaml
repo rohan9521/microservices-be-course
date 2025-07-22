@@ -1,28 +1,28 @@
 services:
-  rabbit:
-    image: "rabbitmq:management-alpine"
-    container_name: rabbit
-    ports:
-    - "5672:5672"
-    - "15672:15672"
-    healthcheck:
-      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
-      interval: 30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
-    extends:
-      file: docker-compose-common.yaml
-      service: network-deploy-service
+  # rabbit:
+  #   image: "rabbitmq:management-alpine"
+  #   container_name: rabbit
+  #   ports:
+  #   - "5672:5672"
+  #   - "15672:15672"
+  #   healthcheck:
+  #     test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+  #     interval: 30s
+  #     timeout: 30s
+  #     retries: 5
+  #     start_period: 30s
+  #   extends:
+  #     file: docker-compose-common.yaml
+  #     service: network-deploy-service
 
   config-server:
     image: "martialtech/config-server"
     container_name: config-server-ms
     ports:
       - "8071:8071"
-    depends_on:
-      rabbit:
-       condition: service_healthy
+    # depends_on:
+    #   rabbit:
+    #    condition: service_healthy
     healthcheck:
       test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit1"
       interval: 10s
@@ -35,56 +35,89 @@ services:
     environment:
       SPRING_APPLICATION_NAME: "config-server"
 
-  mysql:
+  accountsDb:
     image: "mysql:oraclelinux9"
-    container_name: mysql
+    container_name: accountsDb
     ports:
-    - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 20s
-      retries: 30
+    - "3309:3306"
     extends:
       file: docker-compose-common.yaml
-      service: network-deploy-service
+      service: microservice-db-config
     environment:
       MYSQL_ROOT_PASSWORD: Rohan*5631
       MYSQL_ROOT_USERNAME: root
-      MYSQL_DATABASE: testdb
+      MYSQL_DATABASE: accountsDb
 
   accounts:
-    image: "martialtech/accounts:v2"
+    image: "martialtech/accounts:v3"
     container_name: accounts-ms
     ports:
     - "8080:8080"
+    depends_on:
+      accountsDb:
+        condition: service_healthy  
     extends:
       file: docker-compose-common.yaml
       service: microservice-config-server-config
     environment:
       SPRING_APPLICATION_NAME: "accounts-msvc"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://accountsDb:3309/accountsdb"
+
+  cardsdb:
+    image: "mysql:oraclelinux9"
+    container_name: cardsdb
+    ports:
+    - "3307:3306"
+    extends:
+      file: docker-compose-common.yaml
+      service: microservice-db-config
+    environment:
+      MYSQL_ROOT_PASSWORD: Rohan*5631
+      MYSQL_ROOT_USERNAME: root
+      MYSQL_DATABASE: cardsdb
 
   cards:
-    image: "martialtech/cards:v2"
+    image: "martialtech/cards:v3"
     container_name: cards-ms
     ports:
       - "9000:9000"
+    depends_on:
+      cardsdb:
+        condition: service_healthy
     extends:
       file: docker-compose-common.yaml
       service: microservice-config-server-config 
     environment:
       SPRING_APPLICATION_NAME: "cards-msvc"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://cardsdb:3307/cardsdb"
+
+  loansdb:
+    image: "mysql:oraclelinux9"
+    container_name: loansdb
+    ports:
+    - "3308:3306"
+    extends:
+      file: docker-compose-common.yaml
+      service: microservice-db-config
+    environment:
+      MYSQL_ROOT_PASSWORD: Rohan*5631
+      MYSQL_ROOT_USERNAME: root
+      MYSQL_DATABASE: loansdb
 
   loans:
-    image: "martialtech/loans:v2"
+    image: "martialtech/loans:v3"
     container_name: loans-ms
     ports:
       - "8090:8090"
+    depends_on:
+      loansdb:
+        condition: service_healthy
     extends:
       file: docker-compose-common.yaml
       service: microservice-config-server-config 
     environment:
       SPRING_APPLICATION_NAME: "loans-msvc"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://loansdb:3308/loansdb"
    
 networks:
   loansNetwork:

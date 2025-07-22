@@ -6,7 +6,7 @@ spring:
   profiles:
     active: "prod"
   datasource:
-    url: jdbc:mysql://localhost:3306/testdb
+    url: jdbc:mysql://localhost:3306/cardsdb
     username: root
     password: 'Rohan*5631'
   h2:
@@ -14,13 +14,9 @@ spring:
       enabled: true
   jpa:
     show-sql: true
-    sql:
-      init:
-        mode: always
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+  sql:
+    init:
+      mode: always
   config:
     import: optional:configserver:http://localhost:8071
   rabbitmq:
