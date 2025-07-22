@@ -1,0 +1,90 @@
+services:
+  rabbit:
+    image: "rabbitmq:management-alpine"
+    container_name: rabbit
+    ports:
+    - "5672:5672"
+    - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    extends:
+      file: docker-compose-common.yaml
+      service: network-deploy-service
+
+  config-server:
+    image: "martialtech/config-server"
+    container_name: config-server-ms
+    ports:
+      - "8071:8071"
+    depends_on:
+      rabbit:
+       condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: docker-compose-common.yaml
+      service: microservice-base-config
+    environment:
+      SPRING_APPLICATION_NAME: "config-server"
+
+  mysql:
+    image: "mysql:oraclelinux9"
+    container_name: mysql
+    ports:
+    - "3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "exit | mysql -h localhost -P 3306 -u root -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 20s
+      retries: 30
+    extends:
+      file: docker-compose-common.yaml
+      service: network-deploy-service
+    environment:
+      - MYSQL_ROOT_PASSWORD=Rohan*5631
+      - MYSQL_ROOT_USERNAME=root
+
+  accounts:
+    image: "martialtech/accounts:v2"
+    container_name: accounts-ms
+    ports:
+    - "8080:8080"
+    extends:
+      file: docker-compose-common.yaml
+      service: microservice-config-server-config
+    environment:
+      SPRING_APPLICATION_NAME: "accounts-msvc"
+
+  cards:
+    image: "martialtech/cards:v2"
+    container_name: cards-ms
+    ports:
+      - "9000:9000"
+    extends:
+      file: docker-compose-common.yaml
+      service: microservice-config-server-config 
+    environment:
+      SPRING_APPLICATION_NAME: "cards-msvc"
+
+  loans:
+    image: "martialtech/loans:v2"
+    container_name: loans-ms
+    ports:
+      - "8090:8090"
+    extends:
+      file: docker-compose-common.yaml
+      service: microservice-config-server-config 
+    environment:
+      SPRING_APPLICATION_NAME: "loans-msvc"
+   
+networks:
+  loansNetwork:
+    driver: "bridge"

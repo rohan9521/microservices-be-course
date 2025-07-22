@@ -17,6 +17,12 @@ services:
     depends_on: 
       config-server:
         condition: service_healthy 
+      mysql:
+        condition: service_healthy
     environment:
       SPRING_CONFIG_IMPORT: "configserver:http://config-server:8071"
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/testdb"
+      SPRING_DATASOURCE_PASSWORD: "Rohan*5631"
       SPRING_PROFILES_ACTIVE: "default"
+      SPRING_RABBITMQ_HOST: "rabbit"
