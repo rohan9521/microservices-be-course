@@ -60,8 +60,8 @@ services:
       file: docker-compose-common.yaml
       service: microservice-config-server-config
     environment:
-      SPRING_APPLICATION_NAME: "accounts-msvc"
-      SPRING_DATASOURCE_URL: "jdbc:mysql://accountsDb:3309/accountsdb"
+      SPRING_APPLICATION_NAME: "accounts"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://accountsDb:3306/accountsDb"
 
   cardsdb:
     image: "mysql:oraclelinux9"
@@ -73,7 +73,6 @@ services:
       service: microservice-db-config
     environment:
       MYSQL_ROOT_PASSWORD: Rohan*5631
-      MYSQL_ROOT_USERNAME: root
       MYSQL_DATABASE: cardsdb
 
   cards:
@@ -88,8 +87,8 @@ services:
       file: docker-compose-common.yaml
       service: microservice-config-server-config 
     environment:
-      SPRING_APPLICATION_NAME: "cards-msvc"
-      SPRING_DATASOURCE_URL: "jdbc:mysql://cardsdb:3307/cardsdb"
+      SPRING_APPLICATION_NAME: "cards"
+      SPRING_DATASOURCE_URL: jdbc:mysql://cardsdb:3306/cardsdb
 
   loansdb:
     image: "mysql:oraclelinux9"
@@ -116,8 +115,8 @@ services:
       file: docker-compose-common.yaml
       service: microservice-config-server-config 
     environment:
-      SPRING_APPLICATION_NAME: "loans-msvc"
-      SPRING_DATASOURCE_URL: "jdbc:mysql://loansdb:3308/loansdb"
+      SPRING_APPLICATION_NAME: "loans"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://loansdb:3306/loansdb"
    
 networks:
   loansNetwork:
