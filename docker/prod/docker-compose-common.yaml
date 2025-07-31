@@ -11,23 +11,22 @@ services:
         limits:
           memory: 700m
 
-  microservice-db-config:
-    extends:
-      service: network-deploy-service
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 20s
-      retries: 30
-    
-  microservice-config-server-config:
-    extends: 
-      service: microservice-base-config
+  microservice-eureka-server-config:
     depends_on: 
       config-server:
         condition: service_healthy 
+    extends:
+      service: network-deploy-service
     environment:
       SPRING_CONFIG_IMPORT: "configserver:http://config-server:8071"
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: "Rohan*5631"
+    
+  microservice-configs:
+    extends: 
+      service: microservice-base-config
+    depends_on: 
+      eureka-server:
+        condition: service_healthy 
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8071"
       SPRING_PROFILES_ACTIVE: "prod"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE  : "http://eureka-server:8070/eureka"
