@@ -16,7 +16,7 @@ services:
   #     service: network-deploy-service
 
   config-server:
-    image: "martialtech/config-server"
+    image: "martialtech/config-server:v4"
     container_name: config-server-ms
     ports:
       - "8071:8071"
@@ -35,21 +35,21 @@ services:
     environment:
       SPRING_APPLICATION_NAME: "config-server"
 
-  accountsDb:
-    image: "mysql:oraclelinux9"
-    container_name: accountsDb
-    ports:
-    - "3309:3306"
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-db-config
-    environment:
-      MYSQL_ROOT_PASSWORD: Rohan*5631
-      MYSQL_ROOT_USERNAME: root
-      MYSQL_DATABASE: accountsDb
+  # accountsDb:
+  #   image: "mysql:oraclelinux9"
+  #   container_name: accountsDb
+  #   ports:
+  #   - "3309:3306"
+  #   extends:
+  #     file: docker-compose-common.yaml
+  #     service: microservice-db-config
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: Rohan*5631
+  #     MYSQL_ROOT_USERNAME: root
+  #     MYSQL_DATABASE: accountsDb
 
   accounts:
-    image: "martialtech/accounts:v3"
+    image: "martialtech/accounts:v4"
     container_name: accounts-ms
     ports:
     - "8080:8080"
@@ -63,20 +63,20 @@ services:
       SPRING_APPLICATION_NAME: "accounts"
       SPRING_DATASOURCE_URL: "jdbc:mysql://accountsDb:3306/accountsDb"
 
-  cardsdb:
-    image: "mysql:oraclelinux9"
-    container_name: cardsdb
-    ports:
-    - "3307:3306"
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-db-config
-    environment:
-      MYSQL_ROOT_PASSWORD: Rohan*5631
-      MYSQL_DATABASE: cardsdb
+  # cardsdb:
+  #   image: "mysql:oraclelinux9"
+  #   container_name: cardsdb
+  #   ports:
+  #   - "3307:3306"
+  #   extends:
+  #     file: docker-compose-common.yaml
+  #     service: microservice-db-config
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: Rohan*5631
+  #     MYSQL_DATABASE: cardsdb
 
   cards:
-    image: "martialtech/cards:v3"
+    image: "martialtech/cards:v4"
     container_name: cards-ms
     ports:
       - "9000:9000"
@@ -90,21 +90,21 @@ services:
       SPRING_APPLICATION_NAME: "cards"
       SPRING_DATASOURCE_URL: jdbc:mysql://cardsdb:3306/cardsdb
 
-  loansdb:
-    image: "mysql:oraclelinux9"
-    container_name: loansdb
-    ports:
-    - "3308:3306"
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-db-config
-    environment:
-      MYSQL_ROOT_PASSWORD: Rohan*5631
-      MYSQL_ROOT_USERNAME: root
-      MYSQL_DATABASE: loansdb
+  # loansdb:
+  #   image: "mysql:oraclelinux9"
+  #   container_name: loansdb
+  #   ports:
+  #   - "3308:3306"
+  #   extends:
+  #     file: docker-compose-common.yaml
+  #     service: microservice-db-config
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: Rohan*5631
+  #     MYSQL_ROOT_USERNAME: root
+  #     MYSQL_DATABASE: loansdb
 
   loans:
-    image: "martialtech/loans:v3"
+    image: "martialtech/loans:v4"
     container_name: loans-ms
     ports:
       - "8090:8090"

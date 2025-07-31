@@ -6,17 +6,18 @@ spring:
   profiles:
     active: "prod"
   datasource:
-    url: jdbc:mysql://localhost:3306/cardsdb
-    username: root
-    password: 'Rohan*5631'
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
   h2:
     console:
       enabled: true
   jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
     show-sql: true
-  sql:
-    init:
-      mode: always
   config:
     import: optional:configserver:http://localhost:8071
   rabbitmq:
@@ -29,6 +30,30 @@ management:
     web:
       exposure:
         include: "*"
+    endpoint:
+      busrefresh:
+        enabled: true
   endpoint:
-    busrefresh:
+    shutdown:
+      access: unrestricted
+  info:
+    env:
       enabled: true
+
+endpoints:
+  shutdown:
+    enabled: true
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+info:
+  app:
+    name: "cards"
+    description: "Cards application"
+    version: "1.0"
