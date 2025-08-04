@@ -53,6 +53,9 @@ info:
     name: "accounts"
     description: "Accounts application"
     version: "1.0"
-
-
+logging:
+  level:
+    com:
+      learningproj:
+        accounts: DEBUG
 

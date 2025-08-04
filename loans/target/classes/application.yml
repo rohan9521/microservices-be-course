@@ -57,3 +57,8 @@ info:
     name: "Loans"
     description: "Loans application"
     version: "1.0"
+logging:
+  level:
+    com:
+      eazybytes:
+        loans: DEBUG
