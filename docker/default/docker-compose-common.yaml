@@ -26,6 +26,12 @@ services:
           condition: service_healthy 
         eureka-server:
           condition: service_healthy 
+        loans:
+          condition: service_healthy 
+        cards:
+          condition: service_healthy 
+        accounts:
+          condition: service_healthy
       extends:
         service: network-deploy-service
       environment:
