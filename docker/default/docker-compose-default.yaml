@@ -55,12 +55,6 @@ services:
   gateway:
     image: "martialtech/gateway:v1"
     container_name: gateway
-    healthcheck:
-      test: "curl --fail --silent localhost:8072/actuator/health/readiness | grep UP || exit1"
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
     ports:
     - "8072:8072"
     extends:
@@ -72,6 +66,12 @@ services:
   accounts:
     image: "martialtech/accounts:v4"
     container_name: accounts-ms
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     ports:
     - "8080:8080"
     extends:
@@ -85,6 +85,12 @@ services:
     container_name: cards-ms
     ports:
       - "9000:9000"
+    healthcheck:
+      test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     extends:
       file: docker-compose-common.yaml
       service: microservice-configs
@@ -96,6 +102,12 @@ services:
     container_name: loans-ms
     ports:
       - "8090:8090"
+    healthcheck:
+      test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     extends:
       file: docker-compose-common.yaml
       service: microservice-configs
