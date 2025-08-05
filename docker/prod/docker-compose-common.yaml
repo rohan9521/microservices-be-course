@@ -19,13 +19,32 @@ services:
       service: network-deploy-service
     environment:
       SPRING_CONFIG_IMPORT: "configserver:http://config-server:8071"
+
+  microservice-gateway-server-config:
+      depends_on: 
+        config-server:
+          condition: service_healthy 
+        eureka-server:
+          condition: service_healthy 
+        loans:
+          condition: service_healthy 
+        cards:
+          condition: service_healthy 
+        accounts:
+          condition: service_healthy
+      extends:
+        service: network-deploy-service
+      environment:
+        SPRING_CONFIG_IMPORT: "configserver:http://config-server:8071"
+        SPRING_PROFILES_ACTIVE: "prod" 
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE  : "http://eureka-server:8070/eureka"
     
   microservice-configs:
     extends: 
       service: microservice-base-config
     depends_on: 
       eureka-server:
-        condition: service_healthy 
+        condition: service_healthy
     environment:
       SPRING_CONFIG_IMPORT: "configserver:http://config-server:8071"
       SPRING_PROFILES_ACTIVE: "prod"
