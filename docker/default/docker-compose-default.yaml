@@ -52,6 +52,23 @@ services:
     environment:
       SPRING_APPLICATION_NAME: "eureka-server"
 
+  gateway:
+    image: "martialtech/gateway:v1"
+    container_name: gateway
+    healthcheck:
+      test: "curl --fail --silent localhost:8072/actuator/health/readiness | grep UP || exit1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    ports:
+    - "8072:8072"
+    extends:
+      file: docker-compose-common.yaml
+      service: microservice-gateway-server-config
+    environment:
+      SPRING_APPLICATION_NAME: "gatewayserver"      
+
   accounts:
     image: "martialtech/accounts:v4"
     container_name: accounts-ms
