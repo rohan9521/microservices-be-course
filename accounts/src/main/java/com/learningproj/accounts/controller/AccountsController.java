@@ -7,6 +7,8 @@ import com.learningproj.accounts.dto.ErrorResponseDto;
 import com.learningproj.accounts.dto.ResponseDto;
 import com.learningproj.accounts.exception.CustomerAlreadyExistsException;
 import com.learningproj.accounts.service.IAccountService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +18,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -24,6 +28,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.TimeoutException;
 
 @RestController
 @RequestMapping(path = "/api", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -45,6 +51,8 @@ public class AccountsController {
 
     @Autowired
     private IAccountService iAccountService;
+
+    private Logger logger = LoggerFactory.getLogger(AccountsController.class);
 
     @Operation(
             summary = "Create account REST API",
@@ -154,6 +162,7 @@ public class AccountsController {
         }
     }
 
+    @RateLimiter(name="getJavaVersion",fallbackMethod = "getJavaVersionFallback")
     @GetMapping("/java-version")
     public  ResponseEntity<String> getJavaVersion(){
         return ResponseEntity
@@ -161,11 +170,27 @@ public class AccountsController {
                 .body(environment.getProperty("MAVEN_HOME"));
     }
 
-    @GetMapping("/contact-info")
-    public  ResponseEntity<AccountsContactInfo> getAccountsContactInfo(){
+    public  ResponseEntity<String> getJavaVersionFallback(){
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(accountsContactInfo);
+                .body("Java 17");
+    }
+
+    @Retry(name="getBuildInfo",fallbackMethod = "getBuildInfoFallback")
+    @GetMapping("/contact-info")
+    public  ResponseEntity<AccountsContactInfo> getAccountsContactInfo() throws TimeoutException {
+        logger.debug("getAccountsContactInfo");
+        throw new TimeoutException();
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body(accountsContactInfo);
+    }
+
+    public  ResponseEntity<String> getBuildInfoFallback(Throwable throwable) {
+        logger.debug("getAccountsContactInfoFallback method");
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("0.9(static)");
     }
 
     @GetMapping("/build-info")
@@ -174,4 +199,5 @@ public class AccountsController {
                 .status(HttpStatus.OK)
                 .body(buildVersion);
     }
+
 }

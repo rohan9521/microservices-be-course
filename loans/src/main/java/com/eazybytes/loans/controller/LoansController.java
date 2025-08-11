@@ -180,7 +180,8 @@ public class LoansController {
     }
 
     @GetMapping("/contact-info")
-    public ResponseEntity<LoansContactInfo> getLoansContactInfo() {
+    public ResponseEntity<LoansContactInfo> getLoasContactInfo() {
+        logger.debug("getLoan contact info api");
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(loansContactInfo);
