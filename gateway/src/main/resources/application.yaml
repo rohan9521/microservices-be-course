@@ -9,7 +9,7 @@ spring:
     gateway:
       httpclient:
         connect-timeout: 1000
-        response-timeout: 5s
+        response-timeout: 15s
       discovery:
         locator:
           enabled: false

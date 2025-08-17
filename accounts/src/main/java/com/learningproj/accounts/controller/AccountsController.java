@@ -170,7 +170,7 @@ public class AccountsController {
                 .body(environment.getProperty("MAVEN_HOME"));
     }
 
-    public  ResponseEntity<String> getJavaVersionFallback(){
+    public  ResponseEntity<String> getJavaVersionFallback(Throwable throwable){
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body("Java 17");
