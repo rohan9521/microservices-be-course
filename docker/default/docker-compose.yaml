@@ -1,3 +1,7 @@
+---
+networks:
+  loki:
+
 services:
   read:
     image: grafana/loki:latest
@@ -15,9 +19,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-configs
+    networks: &loki-dns
+      loki:
+        aliases:
+          - loki
 
   write:
     image: grafana/loki:latest
@@ -35,9 +40,8 @@ services:
       retries: 5
     depends_on:
       - minio
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-configs
+    networks:
+      <<: *loki-dns
 
   alloy:
     image: grafana/alloy:latest
@@ -49,9 +53,8 @@ services:
       - 12345:12345
     depends_on:
       - gateway
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-configs
+    networks:
+      - loki
 
   minio:
     image: minio/minio
@@ -76,9 +79,8 @@ services:
       interval: 15s
       timeout: 20s
       retries: 5
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-configs
+    networks:
+      - loki
 
   grafana:
     image: grafana/grafana:latest
@@ -113,9 +115,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-configs
+    networks:
+      - loki
 
   backend:
     image: grafana/loki:latest
@@ -127,9 +128,8 @@ services:
     command: "-config.file=/etc/loki/config.yaml -target=backend -legacy-read-mode=false"
     depends_on:
       - gateway
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-configs
+    networks:
+      - loki
     
 
   gateway:
@@ -198,124 +198,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-configs
-  # rabbit:
-  #   image: "rabbitmq:management-alpine"
-  #   container_name: rabbit
-  #   ports:
-  #   - "5672:5672"
-  #   - "15672:15672"
-  #   healthcheck:
-  #     test: [ "CMD", "rabbitmq-diagnostics", "check_running" ]
-  #     interval: 30s
-  #     timeout: 30s
-  #     retries: 5
-  #     start_period: 30s
-  #   extends:
-  #     file: docker-compose-common.yaml
-  #     service: network-deploy-service
+    networks:
+      - loki
 
-  config-server:
-    image: "martialtech/config-server:v4"
-    container_name: config-server-ms
-    ports:
-      - "8071:8071"
-    # depends_on:
-    #   rabbit:
-    #    condition: service_healthy
-    healthcheck:
-      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit1"
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-base-config
-    environment:
-      SPRING_APPLICATION_NAME: "config-server"
-
-  eureka-server:
-    image: "martialtech/eureka-server:v2"
-    container_name: eureka-server
-    ports:
-      - "8070:8070"
-    healthcheck:
-      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit1"
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-eureka-server-config
-    environment:
-      SPRING_APPLICATION_NAME: "eureka-server"
-
-  gateway1:
-    image: "martialtech/gateway:v1"
-    container_name: gateway
-    ports:
-    - "8072:8072"
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-gateway-server-config
-    environment:
-      SPRING_APPLICATION_NAME: "gatewayserver"      
-
-  accounts:
-    image: "martialtech/accounts:v4"
-    container_name: accounts-ms
-    healthcheck:
-      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit1"
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    ports:
-    - "8080:8080"
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-configs
-    environment:
-      SPRING_APPLICATION_NAME: "accounts"
-
-  cards:
-    image: "martialtech/cards:v4"
-    container_name: cards-ms
-    ports:
-      - "9000:9000"
-    healthcheck:
-      test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit1"
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-configs
-    environment:
-      SPRING_APPLICATION_NAME: "cards"
-
-  loans:
-    image: "martialtech/loans:v4"
-    container_name: loans-ms
-    ports:
-      - "8090:8090"
-    healthcheck:
-      test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit1"
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    extends:
-      file: docker-compose-common.yaml
-      service: microservice-configs
-    environment:
-      SPRING_APPLICATION_NAME: "loans"
-   
-networks:
-  loansNetwork:
-    driver: "bridge"
