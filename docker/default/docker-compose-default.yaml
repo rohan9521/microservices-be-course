@@ -91,6 +91,19 @@ services:
       file: docker-compose-common.yaml
       service: network-deploy-service
 
+  tempo:
+    image: grafana/tempo:2.6.1
+    container_name: tempo
+    command: -config.file /etc/tempo-config.yml
+    ports:
+      - "3110:3100"
+      - "4318:4318"
+    volumes:
+      - ../observability/tempo/tempo.yml:/etc/tempo-config.yml
+    extends:
+      file: docker-compose-common.yaml
+      service: network-deploy-service
+
   grafana:
     image: grafana/grafana:11.4.0
     environment:
@@ -107,7 +120,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ../observability/grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      - ../observability/grafana/datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yml
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1" ]
       interval: 10s
@@ -218,7 +231,7 @@ services:
   #     service: network-deploy-service
 
   config-server:
-    image: "martialtech/config-server:v4"
+    image: "martialtech/config-server:v6"
     container_name: config-server-ms
     ports:
       - "8071:8071"
@@ -227,9 +240,9 @@ services:
     #    condition: service_healthy
     healthcheck:
       test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     extends:
       file: docker-compose-common.yaml
@@ -238,15 +251,15 @@ services:
       SPRING_APPLICATION_NAME: "config-server"
 
   eureka-server:
-    image: "martialtech/eureka-server:v2"
+    image: "martialtech/eureka-server:v3"
     container_name: eureka-server
     ports:
       - "8070:8070"
     healthcheck:
       test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     extends:
       file: docker-compose-common.yaml
@@ -254,8 +267,8 @@ services:
     environment:
       SPRING_APPLICATION_NAME: "eureka-server"
 
-  gateway1:
-    image: "martialtech/gateway:v1"
+  gateway-server:
+    image: "martialtech/gateway:v2"
     container_name: gateway
     ports:
     - "8072:8072"
@@ -266,13 +279,13 @@ services:
       SPRING_APPLICATION_NAME: "gatewayserver"      
 
   accounts:
-    image: "martialtech/accounts:v4"
+    image: "martialtech/accounts:v6"
     container_name: accounts-ms
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     ports:
     - "8080:8080"
@@ -280,40 +293,43 @@ services:
       file: docker-compose-common.yaml
       service: microservice-configs
     environment:
+      OTEL_SERVICE_NAME: "accounts"
       SPRING_APPLICATION_NAME: "accounts"
 
   cards:
-    image: "martialtech/cards:v4"
+    image: "martialtech/cards:v6"
     container_name: cards-ms
     ports:
       - "9000:9000"
     healthcheck:
       test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     extends:
       file: docker-compose-common.yaml
       service: microservice-configs
     environment:
+      OTEL_SERVICE_NAME: "cards"
       SPRING_APPLICATION_NAME: "cards"
 
   loans:
-    image: "martialtech/loans:v4"
+    image: "martialtech/loans:v6"
     container_name: loans-ms
     ports:
       - "8090:8090"
     healthcheck:
       test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     extends:
       file: docker-compose-common.yaml
       service: microservice-configs
     environment:
+      OTEL_SERVICE_NAME: "loans"
       SPRING_APPLICATION_NAME: "loans"
    
 networks:
